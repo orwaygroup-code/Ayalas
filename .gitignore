@@ -41,3 +41,7 @@ yarn-error.log*
 .claude/
 .agents/
 .junie/
+
+# Claude Code context (local, sin rastro de IA en el repo)
+CLAUDE.md
+.context/
