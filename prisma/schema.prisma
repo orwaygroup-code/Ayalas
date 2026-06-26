@@ -136,6 +136,7 @@ enum MemberStatus {
   ACTIVO
   CONGELADO
   CANCELADO
+  INVITADO // no-socio que tomó su clase muestra; debe hacerse socio para reservar más
 }
 
 enum LeadStatus {
