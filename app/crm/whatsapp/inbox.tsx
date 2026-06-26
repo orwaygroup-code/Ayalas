@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { TagPill } from "@/components/tag-pill";
+import { TagPicker } from "@/components/tag-picker";
 
 // ── Tipos (espejo de lo que devuelven los endpoints /api/crm/whatsapp/*) ──
 type Plataforma = "whatsapp" | "messenger" | "instagram" | string;
@@ -108,6 +110,21 @@ export default function Inbox() {
     }
   }, []);
 
+  // Asignar / quitar tags de la conversación abierta; refresca hilo y lista.
+  async function changeTag(tagId: string, method: "POST" | "DELETE") {
+    if (!selected) return;
+    await fetch(
+      `/api/crm/whatsapp/conversations/${encodeURIComponent(selected)}/tags`,
+      {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tagId }),
+      },
+    );
+    await fetchThread(selected);
+    fetchList();
+  }
+
   // Polling de la lista.
   useEffect(() => {
     fetchList();
@@ -208,6 +225,13 @@ export default function Inbox() {
                             }${c.lastMessage.body}`
                         : "—"}
                     </span>
+                    {c.tags.length > 0 && (
+                      <span className="mt-1 flex flex-wrap gap-1">
+                        {c.tags.map((t) => (
+                          <TagPill key={t.id} name={t.name} color={t.color} />
+                        ))}
+                      </span>
+                    )}
                   </button>
                 </li>
               );
@@ -230,22 +254,40 @@ export default function Inbox() {
 
         {selected && (
           <>
-            <header className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">
-              <button
-                onClick={() => setSelected(null)}
-                className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 md:hidden"
-                aria-label="Volver"
-              >
-                ←
-              </button>
-              <div className="min-w-0">
-                <p className="truncate font-medium text-slate-800">
-                  {thread?.contactName ?? selected}
-                </p>
-                {thread?.contactName && (
-                  <p className="truncate text-xs text-slate-400">{selected}</p>
-                )}
+            <header className="border-b border-slate-200 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelected(null)}
+                  className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 md:hidden"
+                  aria-label="Volver"
+                >
+                  ←
+                </button>
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-slate-800">
+                    {thread?.contactName ?? selected}
+                  </p>
+                  {thread?.contactName && (
+                    <p className="truncate text-xs text-slate-400">{selected}</p>
+                  )}
+                </div>
               </div>
+              {thread && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {thread.tags.map((t) => (
+                    <TagPill
+                      key={t.id}
+                      name={t.name}
+                      color={t.color}
+                      onRemove={() => changeTag(t.id, "DELETE")}
+                    />
+                  ))}
+                  <TagPicker
+                    assignedTagIds={thread.tags.map((t) => t.id)}
+                    onAssign={(tagId) => changeTag(tagId, "POST")}
+                  />
+                </div>
+              )}
             </header>
 
             <div
