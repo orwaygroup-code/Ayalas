@@ -1,0 +1,340 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Ayalas — Chatbot + CRM para gimnasio
+// Stack: Next.js 14 + Prisma + PostgreSQL
+//
+// Bloques:
+//   1) Staff        — personal del gym que entra al CRM (login)
+//   2) CRM core     — conversaciones/mensajes multicanal + tags  (del context pack)
+//   3) Gimnasio     — Member, Plan, Membership, Class, Booking, Attendance, Payment, Lead
+//   4) Marketing    — campañas por tag (del context pack)
+//   5) GymSetting   — config editable para las respuestas del bot (Info 24/7)
+// ─────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── 1) STAFF (login CRM) ─────────────────────────
+
+enum StaffRole {
+  ADMIN
+  STAFF
+}
+
+model Staff {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         StaffRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ───────────────────────────── 2) CRM CORE ──────────────────────────────────
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum TagSource {
+  MANUAL
+  AUTO_RULE
+  AUTO_LLM
+}
+
+model WhatsAppConversation {
+  id        String            @id @default(cuid())
+  // identidad del contacto: teléfono (WhatsApp) o PSID/IGSID (Messenger/IG)
+  phone     String            @unique
+  // un contacto puede ser un socio registrado y/o un prospecto
+  memberId  String?
+  member    Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  leadId    String?
+  lead      Lead?             @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  messages  WhatsAppMessage[]
+  tags      ConversationTag[]
+  updatedAt DateTime          @updatedAt
+  createdAt DateTime          @default(now())
+
+  @@index([updatedAt])
+  @@index([memberId])
+  @@index([leadId])
+}
+
+model WhatsAppMessage {
+  id             String               @id @default(cuid())
+  conversationId String
+  conversation   WhatsAppConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      MessageDirection
+  body           String
+  messageType    String               @default("text")
+  mid            String?              @unique // ID del mensaje en Meta (tracking de borrado). NULL permitido.
+  plataforma     String?              @default("whatsapp") // 'whatsapp' | 'messenger' | 'instagram'
+  deletedAt      DateTime? // soft-delete: cuando Meta avisa que el usuario borró el mensaje
+  sentAt         DateTime
+  createdAt      DateTime             @default(now())
+
+  @@index([conversationId, sentAt])
+  @@index([mid])
+}
+
+model Tag {
+  id            String            @id @default(cuid())
+  name          String            @unique
+  color         String            @default("slate") // slate|red|amber|green|blue|violet|pink
+  description   String?
+  isActive      Boolean           @default(true)
+  conversations ConversationTag[]
+  members       MemberTag[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([isActive])
+}
+
+model ConversationTag {
+  id             String               @id @default(cuid())
+  conversationId String
+  conversation   WhatsAppConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  tagId          String
+  tag            Tag                  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  source         TagSource            @default(MANUAL)
+  appliedAt      DateTime             @default(now())
+  appliedById    String? // id del staff, o "system:..." o null
+
+  @@unique([conversationId, tagId])
+  @@index([tagId])
+  @@index([conversationId])
+}
+
+model MemberTag {
+  id          String    @id @default(cuid())
+  memberId    String
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  tagId       String
+  tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  source      TagSource @default(MANUAL)
+  appliedAt   DateTime  @default(now())
+  appliedById String?
+
+  @@unique([memberId, tagId])
+  @@index([tagId])
+  @@index([memberId])
+}
+
+// ───────────────────────────── 3) GIMNASIO ──────────────────────────────────
+
+enum MemberStatus {
+  ACTIVO
+  CONGELADO
+  CANCELADO
+}
+
+enum LeadStatus {
+  NUEVO
+  CONTACTADO
+  CONVERTIDO
+  PERDIDO
+}
+
+enum MembershipPaymentStatus {
+  PENDIENTE
+  PAGADO
+  VENCIDO
+}
+
+enum ClassBookingStatus {
+  RESERVADA
+  ASISTIO
+  NO_ASISTIO
+  CANCELADA
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  OTRO
+}
+
+model Member {
+  id            String                 @id @default(cuid())
+  name          String
+  phone         String                 @unique
+  email         String?
+  status        MemberStatus           @default(ACTIVO)
+  joinedAt      DateTime               @default(now()) // fechaAlta
+  notes         String?
+  memberships   Membership[]
+  bookings      ClassBooking[]
+  attendances   Attendance[]
+  payments      Payment[]
+  conversations WhatsAppConversation[]
+  tags          MemberTag[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@index([status])
+}
+
+model Lead {
+  id               String                 @id @default(cuid())
+  name             String?
+  phone            String                 @unique
+  email            String?
+  source           String? // fuente: whatsapp | instagram | messenger | referido | web ...
+  status           LeadStatus             @default(NUEVO)
+  interestedPlanId String?
+  interestedPlan   MembershipPlan?        @relation(fields: [interestedPlanId], references: [id], onDelete: SetNull)
+  convertedMemberId String? // si el lead se convirtió en socio
+  notes            String?
+  conversations    WhatsAppConversation[]
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([status])
+}
+
+model MembershipPlan {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  price        Decimal      @db.Decimal(10, 2)
+  durationDays Int // duraciónDías
+  benefits     String? // beneficios (texto o JSON serializado)
+  isActive     Boolean      @default(true)
+  memberships  Membership[]
+  leads        Lead[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Membership {
+  id            String                  @id @default(cuid())
+  memberId      String
+  member        Member                  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  planId        String
+  plan          MembershipPlan          @relation(fields: [planId], references: [id], onDelete: Restrict)
+  startDate     DateTime // inicio
+  endDate       DateTime // fin
+  paymentStatus MembershipPaymentStatus @default(PENDIENTE) // estadoPago
+  payments      Payment[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  @@index([memberId])
+  @@index([endDate])
+}
+
+model GymClass {
+  id          String         @id @default(cuid())
+  name        String
+  instructor  String?
+  room        String? // sala
+  capacity    Int // cupo
+  // horario recurrente semanal (una sesión concreta se ancla por fecha en ClassBooking)
+  dayOfWeek   Int? // 0=domingo ... 6=sábado
+  startTime   String? // "07:00"
+  durationMin Int            @default(60)
+  isActive    Boolean        @default(true)
+  bookings    ClassBooking[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ClassBooking {
+  id        String             @id @default(cuid())
+  memberId  String
+  member    Member             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  classId   String
+  gymClass  GymClass           @relation(fields: [classId], references: [id], onDelete: Cascade)
+  date      DateTime // fecha/hora de la sesión reservada
+  status    ClassBookingStatus @default(RESERVADA)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([classId, date])
+  @@index([memberId])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  checkinAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([memberId, checkinAt])
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  memberId     String
+  member       Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  membershipId String?
+  membership   Membership?   @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  amount       Decimal       @db.Decimal(10, 2)
+  method       PaymentMethod @default(EFECTIVO)
+  paidAt       DateTime      @default(now()) // fecha
+  notes        String?
+  createdAt    DateTime      @default(now())
+
+  @@index([memberId])
+  @@index([paidAt])
+}
+
+// ───────────────────────────── 4) MARKETING ─────────────────────────────────
+
+model MarketingCampaign {
+  id               String                    @id @default(cuid())
+  name             String
+  templateName     String
+  templateLanguage String                    @default("es_MX")
+  templateParams   Json?
+  headerImageUrl   String?
+  filters          Json // { tagIds, mode, source }
+  status           String                    @default("DRAFT") // DRAFT|SCHEDULED|SENDING|COMPLETED|FAILED|CANCELLED
+  scheduledAt      DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  totalTargets     Int                       @default(0)
+  sentCount        Int                       @default(0)
+  failedCount      Int                       @default(0)
+  targets          MarketingCampaignTarget[]
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+}
+
+model MarketingCampaignTarget {
+  id             String            @id @default(cuid())
+  campaignId     String
+  campaign       MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  phone          String // identidad destino (teléfono o PSID)
+  conversationId String?
+  memberId       String?
+  status         String            @default("PENDING") // PENDING|SENT|FAILED|SKIPPED
+  errorMessage   String?
+  sentAt         DateTime?
+  mid            String?
+
+  @@index([campaignId, status])
+}
+
+// ───────────────────────────── 5) CONFIG DEL BOT (Info 24/7) ─────────────────
+
+// Pares clave/valor editables sin tocar código: dirección, horario, teléfono,
+// mensaje de bienvenida, etc. Los lee el bot para responder Info 24/7.
+model GymSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
