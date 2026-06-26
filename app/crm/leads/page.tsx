@@ -1,4 +1,5 @@
-import { PageHeader, ComingSoon } from "@/components/page-shell";
+import { PageHeader } from "@/components/page-shell";
+import LeadsList from "./leads-list";
 
 export const dynamic = "force-dynamic";
 
@@ -7,9 +8,9 @@ export default function LeadsPage() {
     <>
       <PageHeader
         title="Leads"
-        subtitle="Prospectos capturados por el bot. El embudo se llena en la Fase 4."
+        subtitle="Prospectos capturados por el bot. Gestiona el embudo cambiando su estado."
       />
-      <ComingSoon phase="Fase 4 (Bot de Info + captura de Lead)" />
+      <LeadsList />
     </>
   );
 }
