@@ -1,4 +1,5 @@
-import { PageHeader, ComingSoon } from "@/components/page-shell";
+import { PageHeader } from "@/components/page-shell";
+import Inbox from "./inbox";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ export default function InboxPage() {
         title="Inbox"
         subtitle="Bandeja unificada WhatsApp / Instagram / Messenger."
       />
-      <ComingSoon phase="Fase 2 (Ingesta + Inbox)" />
+      <Inbox />
     </>
   );
 }
