@@ -12,6 +12,7 @@ const NAV: NavItem[] = [
   { href: "/crm/leads", label: "Leads", icon: "🎯" },
   { href: "/crm/socios", label: "Socios", icon: "🏋️" },
   { href: "/crm/marketing", label: "Marketing", icon: "📣" },
+  { href: "/crm/configuracion", label: "Configuración", icon: "⚙️" },
 ];
 
 export default function CrmShell({
