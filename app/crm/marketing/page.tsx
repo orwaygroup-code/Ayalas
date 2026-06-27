@@ -1,4 +1,5 @@
-import { PageHeader, ComingSoon } from "@/components/page-shell";
+import { PageHeader } from "@/components/page-shell";
+import CampaignsList from "./campaigns-list";
 
 export const dynamic = "force-dynamic";
 
@@ -7,9 +8,9 @@ export default function MarketingPage() {
     <>
       <PageHeader
         title="Marketing"
-        subtitle="Campañas por tag con plantillas de Meta para retención."
+        subtitle="Campañas segmentadas por tag. El envío real lo entrega n8n vía plantillas de Meta."
       />
-      <ComingSoon phase="Fase 6 (Marketing / retención)" />
+      <CampaignsList />
     </>
   );
 }
