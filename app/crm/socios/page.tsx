@@ -1,4 +1,5 @@
-import { PageHeader, ComingSoon } from "@/components/page-shell";
+import { PageHeader } from "@/components/page-shell";
+import MembersList from "./members-list";
 
 export const dynamic = "force-dynamic";
 
@@ -7,9 +8,9 @@ export default function SociosPage() {
     <>
       <PageHeader
         title="Socios"
-        subtitle="Membresías, pagos y asistencia. Se nutre conforme avancen las fases."
+        subtitle="Socios del gimnasio, su plan y estado. 🔑 = acceso al portal/app habilitado."
       />
-      <ComingSoon phase="fases posteriores" />
+      <MembersList />
     </>
   );
 }

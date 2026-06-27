@@ -61,6 +61,66 @@ async function main() {
   }
   console.log(`✓ Tags base: ${tags.map((t) => t.name).join(", ")}`);
 
+  // ── Socios de ejemplo (hardcodeados) ──
+  // `login: true` ⇒ se les setea passwordHash: simulan socios con acceso a un
+  // futuro portal/app del gimnasio (login por phone o email + contraseña).
+  // Contraseña de ejemplo para esos: "Socio1234".
+  const socioPass = await bcrypt.hash("Socio1234", 10);
+  const members = [
+    { name: "María González", phone: "5511002001", email: "maria.gonzalez@ayalas.mx", status: "ACTIVO", login: true, plan: "Mensual" },
+    { name: "Juan Pérez", phone: "5511002002", email: "juan.perez@ayalas.mx", status: "ACTIVO", login: true, plan: "Anual" },
+    { name: "Lucía Ramírez", phone: "5511002003", email: "lucia.ramirez@ayalas.mx", status: "CONGELADO", login: false, plan: "Trimestral" },
+    { name: "Carlos Méndez", phone: "5511002004", email: "carlos.mendez@ayalas.mx", status: "ACTIVO", login: false, plan: "Mensual" },
+    { name: "Ana Torres", phone: "5511002005", email: "ana.torres@ayalas.mx", status: "CANCELADO", login: false, plan: null },
+  ] as const;
+
+  for (const m of members) {
+    const member = await prisma.member.upsert({
+      where: { phone: m.phone },
+      update: {
+        name: m.name,
+        email: m.email,
+        status: m.status,
+        passwordHash: m.login ? socioPass : null,
+      },
+      create: {
+        name: m.name,
+        phone: m.phone,
+        email: m.email,
+        status: m.status,
+        passwordHash: m.login ? socioPass : null,
+      },
+    });
+
+    // Membresía activa + pago para quien tenga plan (idempotente).
+    if (m.plan) {
+      const plan = await prisma.membershipPlan.findFirst({ where: { name: m.plan } });
+      const existing = await prisma.membership.findFirst({ where: { memberId: member.id } });
+      if (plan && !existing) {
+        const start = new Date();
+        const end = new Date(start.getTime() + plan.durationDays * 86400000);
+        const membership = await prisma.membership.create({
+          data: {
+            memberId: member.id,
+            planId: plan.id,
+            startDate: start,
+            endDate: end,
+            paymentStatus: "PAGADO",
+          },
+        });
+        await prisma.payment.create({
+          data: {
+            memberId: member.id,
+            membershipId: membership.id,
+            amount: plan.price,
+            method: "EFECTIVO",
+          },
+        });
+      }
+    }
+  }
+  console.log(`✓ Socios de ejemplo: ${members.length} (2 con acceso/login)`);
+
   // ── Config del bot (Info 24/7) — editable sin tocar código ──
   const settings: Record<string, string> = {
     gym_name: "Gimnasio Ayalas",
