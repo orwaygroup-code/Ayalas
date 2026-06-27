@@ -170,7 +170,11 @@ model Member {
   id            String                 @id @default(cuid())
   name          String
   phone         String                 @unique
-  email         String?
+  email         String?                @unique
+  // Hash de contraseña para un futuro login del socio (portal/app del gym).
+  // null = el socio aún no tiene acceso habilitado. El identificador de login
+  // sería phone o email (ambos únicos).
+  passwordHash  String?
   status        MemberStatus           @default(ACTIVO)
   joinedAt      DateTime               @default(now()) // fechaAlta
   notes         String?
