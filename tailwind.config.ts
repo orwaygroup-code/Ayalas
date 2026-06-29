@@ -11,9 +11,9 @@ const config: Config = {
       colors: {
         // Paleta base de Ayalas (ajustable cuando llegue el brand del gym).
         brand: {
-          DEFAULT: "#16a34a", // verde — energía / gimnasio
-          dark: "#15803d",
-          light: "#22c55e",
+          DEFAULT: "#ff5b03", // naranja Ayalas (del logo)
+          dark: "#d94e00",
+          light: "#ff7a33",
         },
       },
     },

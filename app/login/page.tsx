@@ -12,11 +12,13 @@ export default async function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-lg font-bold text-white">
-            A
-          </div>
-          <h1 className="text-xl font-semibold text-slate-900">Ayalas CRM</h1>
-          <p className="mt-1 text-sm text-slate-500">Acceso para personal del gym</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt="Ayalas Wellness Center"
+            className="mx-auto mb-4 h-10 w-auto"
+          />
+          <p className="text-sm text-slate-500">Acceso para el personal</p>
         </div>
         <LoginForm />
       </div>

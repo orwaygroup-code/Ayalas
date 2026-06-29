@@ -38,9 +38,8 @@ export default function CrmShell({
   const sidebar = (
     <nav className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">
-          A
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/isologo.svg" alt="" className="h-8 w-8 shrink-0" />
         <span className="text-base font-semibold text-slate-900">Ayalas</span>
       </div>
       <ul className="flex-1 space-y-1 px-3">

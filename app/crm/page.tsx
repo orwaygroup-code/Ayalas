@@ -127,7 +127,7 @@ function Donut({ pct }: { pct: number }) {
           cy="70"
           r={r}
           fill="none"
-          stroke="#16a34a"
+          stroke="#ff5b03"
           strokeWidth="14"
           strokeLinecap="round"
           strokeDasharray={`${filled} ${c}`}
