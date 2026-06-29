@@ -1,14 +1,14 @@
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { sessionOptions, type SessionData } from "@/lib/session";
+import { getSessionOptions, type SessionData } from "@/lib/session";
 
 /**
  * Lee la sesión del CRM. Útil en Server Components, Route Handlers y Server Actions.
  * En Server Components la cookie es de solo lectura (no llamar a .save()).
  */
 export async function getSession() {
-  return getIronSession<SessionData>(cookies(), sessionOptions);
+  return getIronSession<SessionData>(cookies(), getSessionOptions());
 }
 
 /** Devuelve el staff logueado o null. */

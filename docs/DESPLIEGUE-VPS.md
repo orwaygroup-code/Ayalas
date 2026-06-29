@@ -82,6 +82,12 @@ El `.env.example` de Ayalas ya espera `DATABASE_URL`, `SESSION_SECRET`,
 al host **`postgres`** (red interna), no a `localhost`. Eso lo genera el script de
 aprovisionamiento (paso 3), no hay que tocarlo a mano.
 
+### 1d. `lib/session.ts` — check de SESSION_SECRET perezoso (¡necesario para el build!)
+El check de `SESSION_SECRET` (>=32 chars) **no debe correr al importar el módulo**: si lo
+hace, `next build` (y por ende `docker build`) truena porque en build no hay env. La
+validación se movió a una función `getSessionOptions()` que se llama **por request**, no en
+import. Sin esto, `docker build` falla en el paso `npm run build`.
+
 > Commitea estos archivos a `master` del repo de Ayalas **antes** de desplegar.
 
 ---
