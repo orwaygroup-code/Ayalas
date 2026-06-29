@@ -61,10 +61,16 @@ async function main() {
   }
   console.log(`✓ Tags base: ${tags.map((t) => t.name).join(", ")}`);
 
+  // ── Datos de MUESTRA (ficticios) — solo si SEED_SAMPLE=true (dev/demo) ──
+  // En PRODUCCIÓN no se siembran, para no ensuciar el CRM del cliente con
+  // socios/leads/conversaciones falsos.
+  const seedSample = process.env.SEED_SAMPLE === "true";
+
   // ── Socios de ejemplo (hardcodeados) ──
   // `login: true` ⇒ se les setea passwordHash: simulan socios con acceso a un
   // futuro portal/app del gimnasio (login por phone o email + contraseña).
   // Contraseña de ejemplo para esos: "Socio1234".
+  if (seedSample) {
   const socioPass = await bcrypt.hash("Socio1234", 10);
   const members = [
     { name: "María González", phone: "5511002001", email: "maria.gonzalez@ayalas.mx", status: "ACTIVO", login: true, plan: "Mensual" },
@@ -120,6 +126,7 @@ async function main() {
     }
   }
   console.log(`✓ Socios de ejemplo: ${members.length} (2 con acceso/login)`);
+  } // fin datos de muestra: socios
 
   // ── Config del bot (Info 24/7) — editable sin tocar código ──
   const settings: Record<string, string> = {
@@ -143,7 +150,8 @@ async function main() {
   const demoMarker = await prisma.gymSetting.findUnique({
     where: { key: "demo_seeded" },
   });
-  if (!demoMarker) {
+  if (seedSample && !demoMarker) {
+    const socioPass = await bcrypt.hash("Socio1234", 10);
     const rnd = (n: number) => Math.floor(Math.random() * n);
     const pick = <T>(a: readonly T[]): T => a[rnd(a.length)];
     const daysAgo = (d: number) => new Date(Date.now() - d * 86400000);
@@ -321,7 +329,7 @@ async function main() {
     });
     console.log("✓ Datos demo de volumen sembrados (leads, inbox, socios, reservas, campañas)");
   } else {
-    console.log("• Datos demo ya existían (omitido)");
+    console.log("• Datos de muestra omitidos (SEED_SAMPLE!=true o ya sembrados)");
   }
 
   console.log("\nSeed completado.");
