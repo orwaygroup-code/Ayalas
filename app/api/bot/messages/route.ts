@@ -106,10 +106,51 @@ export async function POST(req: Request) {
     skipDuplicates: true,
   });
 
+  // Auto-lead: TODO contacto entrante que no sea socio queda como Lead NUEVO
+  // desde su primer mensaje (decisión de producto — el dashboard se llena desde
+  // la primera interacción, no solo cuando el LLM detecta intención de compra).
+  // Best-effort: nunca rompe la ingesta del mensaje si algo falla aquí.
+  let leadId: string | undefined;
+  if (inbound?.trim()) {
+    try {
+      const member = await prisma.member.findUnique({
+        where: { phone: identity },
+        select: { id: true },
+      });
+      if (member) {
+        // Ya es socio → no es lead; solo enlazamos la conversación al socio.
+        if (!conversation.memberId) {
+          await prisma.whatsAppConversation.update({
+            where: { id: conversation.id },
+            data: { memberId: member.id },
+          });
+        }
+      } else {
+        // Crea el lead si no existe (idempotente por teléfono). No pisa datos
+        // ya capturados por el bot (name/plan) en contactos posteriores.
+        const lead = await prisma.lead.upsert({
+          where: { phone: identity },
+          update: {},
+          create: { phone: identity, source: plataforma, status: "NUEVO" },
+        });
+        leadId = lead.id;
+        if (!conversation.leadId) {
+          await prisma.whatsAppConversation.update({
+            where: { id: conversation.id },
+            data: { leadId: lead.id },
+          });
+        }
+      }
+    } catch {
+      // El registro del mensaje ya se guardó; el lead es secundario.
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     conversationId: conversation.id,
     identity,
     inserted: result.count,
+    leadId,
   });
 }
