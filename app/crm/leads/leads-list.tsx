@@ -81,23 +81,26 @@ export default function LeadsList() {
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-card">
       <table className="min-w-full text-sm">
-        <thead className="border-b border-slate-200 text-left text-xs uppercase text-slate-400">
+        <thead className="border-b border-slate-200 bg-slate-50/60 text-left text-[11px] uppercase tracking-wide text-slate-400">
           <tr>
-            <th className="px-4 py-3 font-medium">Contacto</th>
-            <th className="px-4 py-3 font-medium">Estado</th>
-            <th className="px-4 py-3 font-medium">Origen</th>
-            <th className="px-4 py-3 font-medium">Interés</th>
-            <th className="px-4 py-3 font-medium">Creado</th>
+            <th className="px-4 py-3 font-semibold">Contacto</th>
+            <th className="px-4 py-3 font-semibold">Estado</th>
+            <th className="px-4 py-3 font-semibold">Origen</th>
+            <th className="px-4 py-3 font-semibold">Interés</th>
+            <th className="px-4 py-3 font-semibold">Creado</th>
           </tr>
         </thead>
         <tbody>
           {leads.map((l) => (
-            <tr key={l.id} className="border-b border-slate-100 last:border-0">
+            <tr
+              key={l.id}
+              className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/70"
+            >
               <td className="px-4 py-3">
                 <p className="font-medium text-slate-800">{l.name ?? "—"}</p>
-                <p className="text-xs text-slate-400">{l.phone}</p>
+                <p className="nums text-xs text-slate-400">{l.phone}</p>
               </td>
               <td className="px-4 py-3">
                 <select
@@ -105,7 +108,7 @@ export default function LeadsList() {
                   onChange={(e) =>
                     changeStatus(l.id, e.target.value as LeadStatus)
                   }
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${STATUS_STYLE[l.status]}`}
+                  className={`cursor-pointer appearance-none rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLE[l.status]}`}
                 >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
@@ -118,7 +121,9 @@ export default function LeadsList() {
               <td className="px-4 py-3 text-slate-500">
                 {l.interestedPlan ?? "—"}
               </td>
-              <td className="px-4 py-3 text-slate-400">{fecha(l.createdAt)}</td>
+              <td className="nums px-4 py-3 text-slate-400">
+                {fecha(l.createdAt)}
+              </td>
             </tr>
           ))}
         </tbody>

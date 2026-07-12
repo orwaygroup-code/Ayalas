@@ -197,7 +197,7 @@ export default function CampaignForm() {
         </Field>
 
         {/* Segmentación */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
           <p className="mb-2 text-sm font-medium text-slate-700">
             Segmentar por tag
           </p>
@@ -277,14 +277,14 @@ export default function CampaignForm() {
           <button
             onClick={() => submit(false)}
             disabled={saving}
-            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:opacity-50"
+            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-200 active:scale-[0.98] disabled:opacity-50"
           >
             Guardar borrador
           </button>
           <button
             onClick={() => submit(true)}
             disabled={saving}
-            className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-dark active:scale-[0.98] disabled:opacity-50"
           >
             {saving ? "Guardando…" : scheduledAt ? "Crear y programar" : "Crear y enviar"}
           </button>
@@ -315,7 +315,7 @@ export default function CampaignForm() {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand";
+  "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-colors hover:border-slate-300 focus:border-brand";
 
 function Field({
   label,

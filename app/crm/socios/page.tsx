@@ -8,7 +8,7 @@ export default function SociosPage() {
     <>
       <PageHeader
         title="Socios"
-        subtitle="Socios del gimnasio, su plan y estado. 🔑 = acceso al portal/app habilitado."
+        subtitle="Socios del gimnasio, su plan y estado. El icono de llave indica acceso al portal/app habilitado."
       />
       <MembersList />
     </>

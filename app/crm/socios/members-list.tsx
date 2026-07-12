@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IconKey } from "@/components/icons";
 
 type Status = "ACTIVO" | "CONGELADO" | "CANCELADO" | "INVITADO";
 
@@ -79,27 +80,30 @@ export default function MembersList() {
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-card">
       <table className="min-w-full text-sm">
-        <thead className="border-b border-slate-200 text-left text-xs uppercase text-slate-400">
+        <thead className="border-b border-slate-200 bg-slate-50/60 text-left text-[11px] uppercase tracking-wide text-slate-400">
           <tr>
-            <th className="px-4 py-3 font-medium">Socio</th>
-            <th className="px-4 py-3 font-medium">Estado</th>
-            <th className="px-4 py-3 font-medium">Plan</th>
-            <th className="px-4 py-3 font-medium">Vence</th>
-            <th className="px-4 py-3 font-medium">Reservas</th>
-            <th className="px-4 py-3 font-medium" title="Acceso al portal/app">
+            <th className="px-4 py-3 font-semibold">Socio</th>
+            <th className="px-4 py-3 font-semibold">Estado</th>
+            <th className="px-4 py-3 font-semibold">Plan</th>
+            <th className="px-4 py-3 font-semibold">Vence</th>
+            <th className="px-4 py-3 font-semibold">Reservas</th>
+            <th className="px-4 py-3 font-semibold" title="Acceso al portal/app">
               Acceso
             </th>
           </tr>
         </thead>
         <tbody>
           {members.map((m) => (
-            <tr key={m.id} className="border-b border-slate-100 last:border-0">
+            <tr
+              key={m.id}
+              className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/70"
+            >
               <td className="px-4 py-3">
                 <p className="font-medium text-slate-800">{m.name}</p>
                 <p className="text-xs text-slate-400">
-                  {m.phone}
+                  <span className="nums">{m.phone}</span>
                   {m.email ? ` · ${m.email}` : ""}
                 </p>
               </td>
@@ -109,7 +113,7 @@ export default function MembersList() {
                   onChange={(e) =>
                     changeStatus(m.id, e.target.value as Status)
                   }
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${STATUS_STYLE[m.status]}`}
+                  className={`cursor-pointer appearance-none rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLE[m.status]}`}
                 >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
@@ -119,13 +123,16 @@ export default function MembersList() {
                 </select>
               </td>
               <td className="px-4 py-3 text-slate-500">{m.plan ?? "—"}</td>
-              <td className="px-4 py-3 text-slate-400">
+              <td className="nums px-4 py-3 text-slate-400">
                 {fecha(m.membershipEnd)}
               </td>
-              <td className="px-4 py-3 text-slate-500">{m.bookings}</td>
+              <td className="nums px-4 py-3 text-slate-500">{m.bookings}</td>
               <td className="px-4 py-3">
                 {m.hasLogin ? (
-                  <span title="Tiene acceso habilitado">🔑</span>
+                  <IconKey
+                    className="h-[18px] w-[18px] text-brand"
+                    aria-label="Tiene acceso habilitado"
+                  />
                 ) : (
                   <span className="text-slate-300">—</span>
                 )}
