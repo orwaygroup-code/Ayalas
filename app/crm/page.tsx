@@ -95,19 +95,19 @@ function StatCard({
   suffix?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-3xl font-semibold text-slate-900">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-shadow hover:shadow-md">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="nums mt-2 text-3xl font-semibold tracking-tight text-slate-900">
         {value}
         {suffix}
       </p>
       {growth !== undefined && (
         <p
-          className={`mt-1 text-xs font-medium ${
+          className={`nums mt-1.5 text-xs font-medium ${
             growth >= 0 ? "text-green-600" : "text-red-600"
           }`}
         >
-          {growth >= 0 ? "▲" : "▼"} {Math.abs(growth)}% vs mes anterior
+          {growth >= 0 ? "↑" : "↓"} {Math.abs(growth)}% vs mes anterior
         </p>
       )}
     </div>
@@ -134,7 +134,9 @@ function Donut({ pct }: { pct: number }) {
         />
       </svg>
       <div>
-        <p className="text-3xl font-semibold text-slate-900">{pct}%</p>
+        <p className="nums text-3xl font-semibold tracking-tight text-slate-900">
+          {pct}%
+        </p>
         <p className="text-sm text-slate-500">de leads convertidos</p>
       </div>
     </div>
@@ -184,7 +186,7 @@ export default async function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Embudo por estado */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
               <h2 className="mb-4 text-sm font-medium text-slate-700">
                 Embudo por estado
               </h2>
@@ -210,7 +212,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Donut de conversión */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
               <h2 className="mb-4 text-sm font-medium text-slate-700">
                 Conversión
               </h2>
@@ -219,7 +221,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Leads por día (últimos 30 días) — scroll horizontal interno en móvil */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <h2 className="mb-4 text-sm font-medium text-slate-700">
               Leads por día (últimos 30 días)
             </h2>

@@ -11,6 +11,29 @@ body {
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-slate-50 font-sans text-slate-900 antialiased;
+}
+
+/* Foco visible y consistente para navegación por teclado (accesibilidad). */
+:focus-visible {
+  outline: 2px solid theme("colors.brand.DEFAULT");
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Selección con el color de marca. */
+::selection {
+  background: theme("colors.brand.100");
+  color: theme("colors.brand.dark");
+}
+
+/* Cifras tabulares: alinea números en tablas, métricas y montos. */
+.nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
