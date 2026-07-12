@@ -75,13 +75,13 @@
     },
     {
       "parameters": {
-        "url": "http://ayalas-ayalas-app-1:3001/api/bot/info",
+        "url": "http://ayalas-ayalas-app-1:3001/api/bot/prompt",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": { "timeout": 10000 }
       },
       "id": "http-info",
-      "name": "HTTP_Info",
+      "name": "HTTP_Prompt",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [500, 280],
@@ -89,7 +89,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const info = $input.first().json || {};\nconst p = $('Parse_WA').first().json;\nconst settings = info.settings || {};\nconst plans = (info.plans||[]).map(x=>`- ${x.name}: $${x.price} (${x.durationDays} dias)`).join('\\n');\nconst classes = (info.classes||[]).map(x=>`- ${x.name} ${x.startTime?('('+x.startTime+')'):''}`).join('\\n');\nconst TAGS = [\"Lead nuevo\",\"Socio activo\",\"Inactivo\",\"Interesado en clases\"];\nconst sd = $getWorkflowStaticData('global');\nif(!sd.hist) sd.hist = {};\nif(!sd.hist[p.phone]) sd.hist[p.phone] = [];\nconst history = sd.hist[p.phone];\nconst system = `Eres el asistente de ${settings.gym_name||'el gimnasio'} por WhatsApp. Responde en espanol, calido y CONCISO (3-4 lineas).\\nINFO:\\nDireccion: ${settings.address||'-'}\\nHorario: ${settings.hours||'-'}\\nTelefono: ${settings.phone||'-'}\\nPLANES:\\n${plans||'-'}\\nCLASES:\\n${classes||'-'}\\n\\nDevuelve SOLO un JSON valido con esta forma exacta:\\n{\"respuesta\":\"texto para el cliente\",\"tags\":[],\"intent\":\"info|lead|booking|none\",\"lead\":{\"name\":\"\",\"interestedPlan\":\"\"},\"booking\":{\"className\":\"\",\"date\":\"YYYY-MM-DD\"}}\\nReglas:\\n- tags: SOLO de esta lista, las que apliquen: ${JSON.stringify(TAGS)}. Si ninguna, [].\\n- intent: \"lead\" si es prospecto nuevo interesado (llena lead); \"booking\" si quiere reservar clase (llena booking.className y booking.date); \"info\" si solo pide info; \"none\" en otro caso.\\n- No inventes datos. respuesta es lo unico que ve el cliente.`;\nconst messages = [{role:'system',content:system}, ...history, {role:'user',content:p.message}];\nreturn [{ json: { phone:p.phone, phone_number_id:p.phone_number_id, mid:p.mid, message:p.message, api_body: { model:'gpt-4o-mini', messages, temperature:0.5, max_tokens:600, response_format:{ type:'json_object' } } } }];"
+        "jsCode": "// El system prompt (persona + guardrails + datos) ya viene armado del app.\nconst system = $input.first().json.system || '';\nconst p = $('Parse_WA').first().json;\nconst sd = $getWorkflowStaticData('global');\nif(!sd.hist) sd.hist = {};\nif(!sd.hist[p.phone]) sd.hist[p.phone] = [];\nconst history = sd.hist[p.phone];\nconst messages = [{role:'system',content:system}, ...history, {role:'user',content:p.message}];\nreturn [{ json: { phone:p.phone, phone_number_id:p.phone_number_id, mid:p.mid, message:p.message, api_body: { model:'gpt-4o-mini', messages, temperature:0.5, max_tokens:600, response_format:{ type:'json_object' } } } }];"
       },
       "id": "prompt",
       "name": "Construir_Prompt",
@@ -282,8 +282,8 @@
     "Webhook_Verify": { "main": [ [ { "node": "Responder_Challenge", "type": "main", "index": 0 } ] ] },
     "Webhook_Mensajes": { "main": [ [ { "node": "Parse_WA", "type": "main", "index": 0 } ] ] },
     "Parse_WA": { "main": [ [ { "node": "IF_Texto", "type": "main", "index": 0 } ] ] },
-    "IF_Texto": { "main": [ [ { "node": "HTTP_Info", "type": "main", "index": 0 } ], [ { "node": "Ignorar", "type": "main", "index": 0 } ] ] },
-    "HTTP_Info": { "main": [ [ { "node": "Construir_Prompt", "type": "main", "index": 0 } ] ] },
+    "IF_Texto": { "main": [ [ { "node": "HTTP_Prompt", "type": "main", "index": 0 } ], [ { "node": "Ignorar", "type": "main", "index": 0 } ] ] },
+    "HTTP_Prompt": { "main": [ [ { "node": "Construir_Prompt", "type": "main", "index": 0 } ] ] },
     "Construir_Prompt": { "main": [ [ { "node": "HTTP_OpenAI", "type": "main", "index": 0 } ] ] },
     "HTTP_OpenAI": { "main": [ [ { "node": "Procesar", "type": "main", "index": 0 } ] ] },
     "Procesar": { "main": [ [ { "node": "HTTP_Responder", "type": "main", "index": 0 } ] ] },
