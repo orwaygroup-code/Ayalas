@@ -107,3 +107,38 @@ export function IconClose(props: IconProps) {
     </Base>
   );
 }
+
+export function IconKey(props: IconProps) {
+  return (
+    <Base {...props}>
+      <circle cx="7.5" cy="15.5" r="4" />
+      <path d="M10.5 12.5 20 3" />
+      <path d="M15.5 7.5 18 10M13.5 9.5 16 12" />
+    </Base>
+  );
+}
+
+export function IconPlus(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </Base>
+  );
+}
+
+export function IconArrowLeft(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </Base>
+  );
+}
+
+export function IconBan(props: IconProps) {
+  return (
+    <Base {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m5.6 5.6 12.8 12.8" />
+    </Base>
+  );
+}

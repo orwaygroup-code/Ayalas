@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TagPill } from "@/components/tag-pill";
 import { TagPicker } from "@/components/tag-picker";
+import { IconArrowLeft, IconBan } from "@/components/icons";
 
 // ── Tipos (espejo de lo que devuelven los endpoints /api/crm/whatsapp/*) ──
 type Plataforma = "whatsapp" | "messenger" | "instagram" | string;
@@ -164,7 +165,7 @@ export default function Inbox() {
   }, [thread]);
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white md:h-[calc(100vh-8rem)]">
+    <div className="flex h-[calc(100dvh-7rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card md:h-[calc(100dvh-8rem)]">
       {/* ── Lista de conversaciones ── */}
       <aside
         className={`flex w-full shrink-0 flex-col border-r border-slate-200 md:w-80 ${
@@ -197,8 +198,8 @@ export default function Inbox() {
                 <li key={c.id}>
                   <button
                     onClick={() => setSelected(c.phone)}
-                    className={`flex w-full flex-col gap-1 border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50 ${
-                      active ? "bg-slate-100" : ""
+                    className={`flex w-full flex-col gap-1 border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
+                      active ? "bg-brand/5" : ""
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -219,7 +220,7 @@ export default function Inbox() {
                     <span className="truncate text-sm text-slate-500">
                       {c.lastMessage
                         ? c.lastMessage.deletedAt
-                          ? "🚫 Mensaje eliminado"
+                          ? "Mensaje eliminado"
                           : `${
                               c.lastMessage.direction === "OUTBOUND" ? "Tú: " : ""
                             }${c.lastMessage.body}`
@@ -258,10 +259,10 @@ export default function Inbox() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelected(null)}
-                  className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 md:hidden"
+                  className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 md:hidden"
                   aria-label="Volver"
                 >
-                  ←
+                  <IconArrowLeft className="h-5 w-5" />
                 </button>
                 <div className="min-w-0">
                   <p className="truncate font-medium text-slate-800">
@@ -319,11 +320,12 @@ export default function Inbox() {
                     >
                       {m.deletedAt ? (
                         <span
-                          className={`italic ${
+                          className={`inline-flex items-center gap-1 italic ${
                             outbound ? "text-white/70" : "text-slate-400"
                           }`}
                         >
-                          🚫 Este mensaje fue eliminado
+                          <IconBan className="h-3.5 w-3.5" />
+                          Este mensaje fue eliminado
                         </span>
                       ) : (
                         <span className="whitespace-pre-wrap break-words">
