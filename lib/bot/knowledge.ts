@@ -22,16 +22,29 @@ export type GymFacts = {
     startTime: string | null;
     durationMin: number;
   }[];
+  // Catálogo de conocimiento en prosa (editable desde la DB): concepto,
+  // disciplinas, servicios, políticas, FAQ. Fuente principal del bot.
+  knowledge: {
+    key: string;
+    category: string;
+    name: string;
+    body: string;
+    always: boolean;
+  }[];
 };
 
 export async function getGymFacts(): Promise<GymFacts> {
-  const [settings, plans, classes] = await Promise.all([
+  const [settings, plans, classes, knowledge] = await Promise.all([
     prisma.gymSetting.findMany(),
     prisma.membershipPlan.findMany({
       where: { isActive: true },
       orderBy: { price: "asc" },
     }),
     prisma.gymClass.findMany({ where: { isActive: true } }),
+    prisma.botKnowledge.findMany({
+      where: { isActive: true },
+      orderBy: [{ always: "desc" }, { category: "asc" }],
+    }),
   ]);
 
   const settingsObj: Record<string, string> = {};
@@ -39,6 +52,13 @@ export async function getGymFacts(): Promise<GymFacts> {
 
   return {
     settings: settingsObj,
+    knowledge: knowledge.map((k) => ({
+      key: k.key,
+      category: k.category,
+      name: k.name,
+      body: k.body,
+      always: k.always,
+    })),
     plans: plans.map((p) => ({
       name: p.name,
       description: p.description,
