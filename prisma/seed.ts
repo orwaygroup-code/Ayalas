@@ -33,9 +33,9 @@ async function main() {
 
   // ── Clases de ejemplo (reservables) ──
   const classes = [
-    { name: "Spinning", instructor: "Coach Ayala", room: "Sala A", capacity: 20, dayOfWeek: 1, startTime: "07:00" },
-    { name: "Yoga", instructor: "Coach Luna", room: "Sala B", capacity: 15, dayOfWeek: 3, startTime: "19:00" },
-    { name: "Funcional", instructor: "Coach Rex", room: "Sala A", capacity: 18, dayOfWeek: 5, startTime: "18:00" },
+    { name: "Spinning", room: "Sala A", capacity: 20, dayOfWeek: 1, startTime: "07:00" },
+    { name: "Yoga", room: "Sala B", capacity: 15, dayOfWeek: 3, startTime: "19:00" },
+    { name: "Funcional", room: "Sala A", capacity: 18, dayOfWeek: 5, startTime: "18:00" },
   ];
   for (const c of classes) {
     const existing = await prisma.gymClass.findFirst({ where: { name: c.name } });

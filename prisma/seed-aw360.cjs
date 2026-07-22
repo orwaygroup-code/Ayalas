@@ -262,6 +262,39 @@ const PLANS = [
   },
 ];
 
+// ── Horario semanal real (2 areas). Dia: 1=Lun ... 6=Sab. Instructor se asigna
+//    despues desde el CRM (queda null aqui). ──
+const INDOOR = "Salón Indoor";
+const USOS = "Salón Usos Múltiples";
+const SCHEDULE = [
+  // Salon Indoor (Bici)
+  { name: "RPM", room: INDOOR, dayOfWeek: 1, startTime: "18:00" },
+  { name: "Indoor", room: INDOOR, dayOfWeek: 2, startTime: "06:00" },
+  { name: "RPM", room: INDOOR, dayOfWeek: 2, startTime: "18:00" },
+  { name: "Indoor", room: INDOOR, dayOfWeek: 3, startTime: "06:00" },
+  { name: "RPM", room: INDOOR, dayOfWeek: 3, startTime: "18:00" },
+  { name: "Indoor", room: INDOOR, dayOfWeek: 4, startTime: "06:00" },
+  { name: "RPM", room: INDOOR, dayOfWeek: 4, startTime: "18:00" },
+  { name: "Indoor", room: INDOOR, dayOfWeek: 4, startTime: "19:00" },
+  { name: "Indoor", room: INDOOR, dayOfWeek: 5, startTime: "08:00" },
+  { name: "RPM", room: INDOOR, dayOfWeek: 5, startTime: "18:00" },
+  { name: "Clase temática", room: INDOOR, dayOfWeek: 6, startTime: "09:30" },
+  // Salon Usos Multiples
+  { name: "Yogalattes", room: USOS, dayOfWeek: 1, startTime: "17:00" },
+  { name: "Barre", room: USOS, dayOfWeek: 1, startTime: "18:00" },
+  { name: "Yoga Somática", room: USOS, dayOfWeek: 2, startTime: "09:00" },
+  { name: "Barre", room: USOS, dayOfWeek: 2, startTime: "18:00" },
+  { name: "Yoga", room: USOS, dayOfWeek: 3, startTime: "07:00" },
+  { name: "Yoga", room: USOS, dayOfWeek: 3, startTime: "08:30" },
+  { name: "Yogalattes", room: USOS, dayOfWeek: 3, startTime: "17:00" },
+  { name: "Barre", room: USOS, dayOfWeek: 3, startTime: "18:00" },
+  { name: "Yoga Somática", room: USOS, dayOfWeek: 4, startTime: "09:00" },
+  { name: "Barre", room: USOS, dayOfWeek: 4, startTime: "18:00" },
+  { name: "Yoga", room: USOS, dayOfWeek: 5, startTime: "07:00" },
+  { name: "Yoga", room: USOS, dayOfWeek: 5, startTime: "08:30" },
+  { name: "Barre", room: USOS, dayOfWeek: 5, startTime: "18:00" },
+];
+
 // ── Settings ──
 const SETTINGS = {
   gym_name: "Ayala's Wellness 360 (AW360)",
@@ -318,13 +351,38 @@ async function main() {
     });
   }
 
+  // 5) Horario semanal: desactiva todo lo previo y (re)activa el horario real.
+  //    Idempotente por (name, dayOfWeek, startTime, room). No pisa el instructorId.
+  await prisma.gymClass.updateMany({ data: { isActive: false } });
+  for (const c of SCHEDULE) {
+    const ex = await prisma.gymClass.findFirst({
+      where: {
+        name: c.name,
+        dayOfWeek: c.dayOfWeek,
+        startTime: c.startTime,
+        room: c.room,
+      },
+    });
+    if (ex) {
+      await prisma.gymClass.update({
+        where: { id: ex.id },
+        data: { isActive: true },
+      });
+    } else {
+      await prisma.gymClass.create({
+        data: { ...c, capacity: 12, durationMin: 60, isActive: true },
+      });
+    }
+  }
+
   const kc = await prisma.botKnowledge.count({ where: { isActive: true } });
+  const cc = await prisma.gymClass.count({ where: { isActive: true } });
   const plans = await prisma.membershipPlan.findMany({
     where: { isActive: true },
     select: { name: true, price: true },
     orderBy: { price: "asc" },
   });
-  console.log(`OK. BotKnowledge activos: ${kc}`);
+  console.log(`OK. BotKnowledge activos: ${kc} | Clases activas: ${cc}`);
   console.log(
     "Planes activos:",
     plans.map((p) => `${p.name} $${p.price}`).join(" | "),

@@ -239,20 +239,34 @@ model Membership {
   @@index([endDate])
 }
 
+// Profesor/instructor. CRUD desde el CRM; se liga a las sesiones de GymClass.
+model Instructor {
+  id        String     @id @default(cuid())
+  name      String
+  specialty String? // especialidad (ej. "Indoor / RPM", "Yoga")
+  isActive  Boolean    @default(true)
+  classes   GymClass[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
 model GymClass {
-  id          String         @id @default(cuid())
-  name        String
-  instructor  String?
-  room        String? // sala
-  capacity    Int // cupo
+  id           String         @id @default(cuid())
+  name         String
+  // Área/salón donde se imparte (ej. "Salón Indoor", "Salón Usos Múltiples").
+  room         String? // sala / área
+  capacity     Int            @default(12) // cupo
   // horario recurrente semanal (una sesión concreta se ancla por fecha en ClassBooking)
-  dayOfWeek   Int? // 0=domingo ... 6=sábado
-  startTime   String? // "07:00"
-  durationMin Int            @default(60)
-  isActive    Boolean        @default(true)
-  bookings    ClassBooking[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  dayOfWeek    Int? // 0=domingo ... 6=sábado
+  startTime    String? // "07:00"
+  durationMin  Int            @default(60)
+  isActive     Boolean        @default(true)
+  // Profesor que la imparte (opcional; se asigna desde el CRM).
+  instructorId String?
+  instructor   Instructor?    @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  bookings     ClassBooking[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model ClassBooking {
