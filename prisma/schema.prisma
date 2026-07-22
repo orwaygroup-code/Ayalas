@@ -343,3 +343,19 @@ model GymSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+// Base de conocimiento del bot (prosa): concepto, disciplinas, servicios, FAQ,
+// políticas. Editable desde la DB sin tocar código. La arma /api/bot/prompt en
+// el system prompt del LLM. `always` = incluir siempre; el resto se puede filtrar
+// por keywords más adelante si la base crece.
+model BotKnowledge {
+  id        String   @id @default(cuid())
+  key       String   @unique // id del registro (ej. "identidad", "yoga")
+  category  String // institucional | disciplina | servicio | faq | politica
+  name      String
+  keywords  String // coma-separado (para futura recuperación por relevancia)
+  body      String // el texto del registro
+  always    Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
