@@ -40,7 +40,10 @@ export async function getGymFacts(): Promise<GymFacts> {
       where: { isActive: true },
       orderBy: { price: "asc" },
     }),
-    prisma.gymClass.findMany({ where: { isActive: true } }),
+    prisma.gymClass.findMany({
+      where: { isActive: true },
+      include: { instructor: { select: { name: true } } },
+    }),
     prisma.botKnowledge.findMany({
       where: { isActive: true },
       orderBy: [{ always: "desc" }, { category: "asc" }],
@@ -68,7 +71,7 @@ export async function getGymFacts(): Promise<GymFacts> {
     })),
     classes: classes.map((c) => ({
       name: c.name,
-      instructor: c.instructor,
+      instructor: c.instructor?.name ?? null,
       room: c.room,
       capacity: c.capacity,
       dayOfWeek: c.dayOfWeek,

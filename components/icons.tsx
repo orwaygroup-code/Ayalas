@@ -142,3 +142,30 @@ export function IconBan(props: IconProps) {
     </Base>
   );
 }
+
+export function IconProfesor(props: IconProps) {
+  return (
+    <Base {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M6.5 19a5.5 5.5 0 0 1 11 0" />
+    </Base>
+  );
+}
+
+export function IconCalendar(props: IconProps) {
+  return (
+    <Base {...props}>
+      <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
+    </Base>
+  );
+}
+
+export function IconTrash(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+    </Base>
+  );
+}

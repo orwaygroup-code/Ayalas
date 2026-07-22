@@ -8,6 +8,8 @@ import {
   IconInbox,
   IconLeads,
   IconSocios,
+  IconProfesor,
+  IconCalendar,
   IconMarketing,
   IconConfig,
   IconMenu,
@@ -26,6 +28,8 @@ const NAV: NavItem[] = [
   { href: "/crm/whatsapp", label: "Inbox", icon: IconInbox },
   { href: "/crm/leads", label: "Leads", icon: IconLeads },
   { href: "/crm/socios", label: "Socios", icon: IconSocios },
+  { href: "/crm/profesores", label: "Profesores", icon: IconProfesor },
+  { href: "/crm/horarios", label: "Horarios", icon: IconCalendar },
   { href: "/crm/marketing", label: "Marketing", icon: IconMarketing },
   { href: "/crm/configuracion", label: "Configuración", icon: IconConfig },
 ];

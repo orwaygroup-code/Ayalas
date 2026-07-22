@@ -31,6 +31,7 @@ export async function GET(req: Request) {
 
   const classes = await prisma.gymClass.findMany({
     where: { isActive: true },
+    include: { instructor: { select: { name: true } } },
     orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
   });
 
@@ -40,7 +41,7 @@ export async function GET(req: Request) {
       classes: classes.map((c) => ({
         id: c.id,
         name: c.name,
-        instructor: c.instructor,
+        instructor: c.instructor?.name ?? null,
         room: c.room,
         capacity: c.capacity,
         dayOfWeek: c.dayOfWeek,
@@ -68,7 +69,7 @@ export async function GET(req: Request) {
       return {
         id: c.id,
         name: c.name,
-        instructor: c.instructor,
+        instructor: c.instructor?.name ?? null,
         room: c.room,
         startTime: c.startTime,
         durationMin: c.durationMin,
