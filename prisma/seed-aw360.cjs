@@ -295,6 +295,32 @@ const SCHEDULE = [
   { name: "Barre", room: USOS, dayOfWeek: 5, startTime: "18:00" },
 ];
 
+// ── Profesores placeholder: 2 por grupo de disciplina. El staff los renombra
+//    y reasigna despues desde el CRM. ──
+const INSTRUCTORS = [
+  { name: "Profesor Indoor 1", specialty: "Indoor / RPM" },
+  { name: "Profesor Indoor 2", specialty: "Indoor / RPM" },
+  { name: "Profesor Yoga 1", specialty: "Yoga / Somática / Yogalattes" },
+  { name: "Profesor Yoga 2", specialty: "Yoga / Somática / Yogalattes" },
+  { name: "Profesor Barre 1", specialty: "Barre" },
+  { name: "Profesor Barre 2", specialty: "Barre" },
+];
+// A que grupo pertenece cada clase (para asignar el par de profesores).
+const GROUP = {
+  RPM: "indoor",
+  Indoor: "indoor",
+  "Clase temática": "indoor",
+  Yoga: "yoga",
+  "Yoga Somática": "yoga",
+  Yogalattes: "yoga",
+  Barre: "barre",
+};
+const POOL = {
+  indoor: ["Profesor Indoor 1", "Profesor Indoor 2"],
+  yoga: ["Profesor Yoga 1", "Profesor Yoga 2"],
+  barre: ["Profesor Barre 1", "Profesor Barre 2"],
+};
+
 // ── Settings ──
 const SETTINGS = {
   gym_name: "Ayala's Wellness 360 (AW360)",
@@ -351,10 +377,37 @@ async function main() {
     });
   }
 
-  // 5) Horario semanal: desactiva todo lo previo y (re)activa el horario real.
-  //    Idempotente por (name, dayOfWeek, startTime, room). No pisa el instructorId.
+  // 5) Profesores placeholder (find-or-create por nombre).
+  const instrId = {};
+  for (const ins of INSTRUCTORS) {
+    let ex = await prisma.instructor.findFirst({ where: { name: ins.name } });
+    if (ex) {
+      ex = await prisma.instructor.update({
+        where: { id: ex.id },
+        data: { specialty: ins.specialty, isActive: true },
+      });
+    } else {
+      ex = await prisma.instructor.create({ data: ins });
+    }
+    instrId[ins.name] = ex.id;
+  }
+  // Reparte los 2 profesores del grupo entre las sesiones de esa clase.
+  const counters = { indoor: 0, yoga: 0, barre: 0 };
+  function pickInstructor(name) {
+    const g = GROUP[name];
+    if (!g) return null;
+    const pool = POOL[g];
+    const pick = pool[counters[g] % pool.length];
+    counters[g]++;
+    return instrId[pick] ?? null;
+  }
+
+  // 6) Horario semanal: desactiva todo, (re)activa el horario real y asigna un
+  //    profesor placeholder SOLO si la sesion aun no tiene (no pisa lo que edite
+  //    el staff). Idempotente por (name, dayOfWeek, startTime, room).
   await prisma.gymClass.updateMany({ data: { isActive: false } });
   for (const c of SCHEDULE) {
+    const assigned = pickInstructor(c.name);
     const ex = await prisma.gymClass.findFirst({
       where: {
         name: c.name,
@@ -366,23 +419,35 @@ async function main() {
     if (ex) {
       await prisma.gymClass.update({
         where: { id: ex.id },
-        data: { isActive: true },
+        data: {
+          isActive: true,
+          ...(ex.instructorId ? {} : { instructorId: assigned }),
+        },
       });
     } else {
       await prisma.gymClass.create({
-        data: { ...c, capacity: 12, durationMin: 60, isActive: true },
+        data: {
+          ...c,
+          capacity: 12,
+          durationMin: 60,
+          isActive: true,
+          instructorId: assigned,
+        },
       });
     }
   }
 
   const kc = await prisma.botKnowledge.count({ where: { isActive: true } });
   const cc = await prisma.gymClass.count({ where: { isActive: true } });
+  const ic = await prisma.instructor.count();
   const plans = await prisma.membershipPlan.findMany({
     where: { isActive: true },
     select: { name: true, price: true },
     orderBy: { price: "asc" },
   });
-  console.log(`OK. BotKnowledge activos: ${kc} | Clases activas: ${cc}`);
+  console.log(
+    `OK. BotKnowledge activos: ${kc} | Clases activas: ${cc} | Profesores: ${ic}`,
+  );
   console.log(
     "Planes activos:",
     plans.map((p) => `${p.name} $${p.price}`).join(" | "),

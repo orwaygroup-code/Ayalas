@@ -68,6 +68,12 @@ export default function HorariosCalendar() {
     );
   }, [clases]);
 
+  // Nombres de clase existentes, para el drop list del alta.
+  const classNames = useMemo(
+    () => Array.from(new Set(clases.map((c) => c.name))).sort(),
+    [clases],
+  );
+
   async function assign(claseId: string, instructorId: string) {
     setClases((cs) =>
       cs.map((c) =>
@@ -194,7 +200,7 @@ export default function HorariosCalendar() {
         </section>
       ))}
 
-      <AddClase areas={areas} onAdded={load} />
+      <AddClase areas={areas} classNames={classNames} onAdded={load} />
     </div>
   );
 }
@@ -202,9 +208,11 @@ export default function HorariosCalendar() {
 // Formulario compacto para agregar una clase al horario.
 function AddClase({
   areas,
+  classNames,
   onAdded,
 }: {
   areas: string[];
+  classNames: string[];
   onAdded: () => void;
 }) {
   const [name, setName] = useState("");
@@ -245,12 +253,18 @@ function AddClase({
         Agregar clase al horario
       </p>
       <div className="flex flex-wrap items-end gap-3">
-        <input
+        <select
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Clase (ej. RPM)"
-          className={`${inputCls} min-w-[140px] flex-1`}
-        />
+          className={`${inputCls} min-w-[150px] flex-1 cursor-pointer`}
+        >
+          <option value="">Clase…</option>
+          {classNames.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
         <input
           value={room}
           onChange={(e) => setRoom(e.target.value)}
