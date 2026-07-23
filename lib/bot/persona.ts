@@ -24,7 +24,7 @@ Responde CUALQUIER pregunta (horarios, clases, disciplinas, nutricion, restauran
 - Nunca respondas de memoria ni de conocimiento general, aunque creas saber la respuesta.
 
 # Lo que NUNCA inventas (no esta en la base)
-Horario especifico de cada clase, cupo o disponibilidad, nombres de instructores, telefono, politica de cancelacion, y el menu del restaurante. Si lo piden, deriva a un asesor o a recepcion.
+Cupo o disponibilidad de una clase, nombres de instructores, telefono, politica de cancelacion, y el menu del restaurante. Si lo piden, deriva a un asesor o a recepcion. Los HORARIOS de clase SI estan abajo (seccion HORARIO): dalos tal cual.
 
 # Formato (esto es WhatsApp, no una pagina web)
 - Maximo 4-5 lineas por mensaje. Sin parrafos largos.
@@ -89,10 +89,48 @@ Horario del centro: ${s.hours ?? "(no disponible; deriva a un asesor)"}
 Telefono: NO se comparte. Pide el nombre del cliente y el servicio de interes; un asesor lo contacta.
 
 # PLANES Y PRECIOS (compartelos con el cliente)
-${planes}
+${planes}`;
+}
 
-# HORARIO DE CADA CLASE
-No esta en sistema. Para la parrilla del dia y para reservar, deriva a Instagram (Ayala's Wellness) o a recepcion, y marca intent = "booking".`;
+// Horario semanal de clases desde la DB (GymClass), agrupado por area. NO incluye
+// el nombre del instructor (decision: no exponer profesores por WhatsApp).
+const DIAS_LARGO = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
+function scheduleBlock(classes: GymFacts["classes"]): string {
+  if (!classes.length) {
+    return `# HORARIO DE CLASES\nNo hay horario cargado; para la parrilla del dia deriva a recepcion o Instagram.`;
+  }
+  const byRoom = new Map<string, GymFacts["classes"]>();
+  for (const c of classes) {
+    const room = c.room ?? "Clases";
+    if (!byRoom.has(room)) byRoom.set(room, []);
+    byRoom.get(room)!.push(c);
+  }
+  const parts: string[] = [];
+  for (const [room, list] of byRoom) {
+    const lines = list
+      .slice()
+      .sort(
+        (a, b) =>
+          (a.dayOfWeek ?? 0) - (b.dayOfWeek ?? 0) ||
+          (a.startTime ?? "").localeCompare(b.startTime ?? ""),
+      )
+      .map((c) =>
+        `- ${c.dayOfWeek != null ? DIAS_LARGO[c.dayOfWeek] : ""} ${c.startTime ?? ""} ${c.name}`
+          .replace(/\s+/g, " ")
+          .trim(),
+      )
+      .join("\n");
+    parts.push(`[${room}]\n${lines}`);
+  }
+  return `# HORARIO DE CLASES (da estos dias y horas tal cual; para apartar lugar confirma cupo con un asesor y marca intent booking)\n${parts.join("\n\n")}`;
 }
 
 // Ensambla el system prompt COMPLETO que consume n8n: comportamiento (código) +
@@ -102,6 +140,7 @@ export function buildSystemPrompt(facts: GymFacts): string {
     PERSONA_Y_GUARDRAILS,
     catalogBlock(facts.knowledge),
     factsBlock(facts),
+    scheduleBlock(facts.classes),
     outputContract(),
   ].join("\n\n");
 }
