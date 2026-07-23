@@ -27,7 +27,7 @@ const KNOWLEDGE = [
     name: "Horarios de atencion",
     keywords: "horario,horarios,a que hora,abren,cierran,domingo,sabado",
     always: true,
-    body: "Horario del centro: Lunes a Viernes de 5:00 AM a 12:00 AM (medianoche). Sabados de 7:00 AM a 7:00 PM. Domingos de 8:00 AM a 5:00 PM. El horario de cada CLASE especifica no esta en sistema: para eso canaliza a recepcion.",
+    body: "Horario del centro: Lunes a Viernes de 5:00 AM a 12:00 AM (medianoche). Sabados de 7:00 AM a 7:00 PM. Domingos de 8:00 AM a 5:00 PM. Los horarios de cada clase estan disponibles (ver la seccion HORARIO).",
   },
   {
     key: "liderazgo",
@@ -187,7 +187,7 @@ const KNOWLEDGE = [
     name: "Reservas y agendado de clases",
     keywords: "agendar,reservar,apartar,lugar,cupo,inscribirme,disponibilidad,a que hora es la clase,calendario",
     always: true,
-    body: "REGLA INTERNA: la disponibilidad, los cupos y el horario de cada clase NO estan en sistema. No confirmes lugares ni horas especificas. Pide la disciplina o servicio y el dia y hora que le acomodan, di que un asesor cierra la reserva, y marca intent = booking llenando booking.className y booking.date con lo que la persona haya dicho.",
+    body: "REGLA INTERNA: los HORARIOS de clase SI estan (seccion HORARIO): dalos con confianza. Lo que NO esta es el cupo/disponibilidad en tiempo real ni el nombre del instructor. Para apartar un lugar, di que un asesor cierra la reserva y marca intent = booking llenando booking.className y booking.date con lo que la persona haya dicho.",
   },
 ];
 
