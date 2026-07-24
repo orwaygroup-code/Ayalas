@@ -166,6 +166,15 @@ const KNOWLEDGE = [
     body: "AW360 es para todos, sin importar tu condicion fisica actual. No es un gimnasio de pesas y fierros: es una clinica integral. Hay espacio a la medida desde adolescentes que buscan buenos habitos hasta adultos mayores que necesitan activacion fisica y movilidad. Ambiente humano, profesional y sin juicios, sin estereotipos ni barreras.",
   },
   {
+    key: "convenios",
+    category: "institucional",
+    name: "Convenios (universidades y empresas)",
+    keywords:
+      "convenio,convenios,universidad,universidades,empresa,empresas,trabajadores,descuento corporativo,global university,rrhh,corporativo",
+    always: false,
+    body: "Si, AW360 maneja convenios con universidades (por ejemplo, Global University) y con empresas para descuentos a sus trabajadores. Para conocer los convenios vigentes o sumar a tu empresa o institucion, pide el nombre de la persona y de la empresa/universidad y deriva a un asesor. Marca intent = lead.",
+  },
+  {
     key: "precios_planes",
     category: "politica",
     name: "Precios y planes",
@@ -199,7 +208,7 @@ const PLANS = [
     price: 1250,
     durationDays: 30,
     benefits:
-      "Inscripcion $350. Incluye clases ilimitadas, area de pesas y cardio (equipo de ultima generacion), zona wellness (regaderas) y Checklist de Salud 360 (nutricion, psicologia y kinesiologia). Bono: 1 playera de regalo y 1 batido de proteina gratis al mes. Cupo limitado a los primeros 50 registros.",
+      "Inscripcion $350. Incluye clases ilimitadas, area de pesas y cardio (equipo de ultima generacion), zona wellness (regaderas) y Checklist de Salud 360 (nutricion, psicologia y kinesiologia). Bono: 1 playera de regalo y 1 batido de proteina gratis al mes.",
   },
   {
     name: "Paquete Fundador",
@@ -207,7 +216,7 @@ const PLANS = [
     price: 950,
     durationDays: 30,
     benefits:
-      "Exclusivo Colosio. Tarifa congelada de por vida con pago puntual. Inscripcion $450 (pago unico). Incluye area de pesas y cardio, zona wellness (regaderas), Checklist de Salud 360 (nutricion, psicologia y kinesiologia) y sesiones de salud mensuales. No incluye clases. Cupo limitado a los primeros 50 registros.",
+      "Exclusivo Colosio. Tarifa congelada de por vida con pago puntual. Inscripcion $450 (pago unico). Incluye area de pesas y cardio, zona wellness (regaderas), Checklist de Salud 360 (nutricion, psicologia y kinesiologia) y sesiones de salud mensuales. No incluye clases.",
   },
   {
     name: "Paquete 0 Excusas",
