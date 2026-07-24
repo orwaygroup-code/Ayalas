@@ -124,7 +124,7 @@ const KNOWLEDGE = [
     keywords:
       "kinesiologia,psicologia,psicologo,fisioterapia,consulta,checklist,salud 360,valoracion,rehabilitacion,postura,movilidad,sesion,aparte,sin ser socio",
     always: false,
-    body: "Los servicios de salud (nutricion, psicologia deportiva y kinesiologia) estan disponibles de DOS formas: incluidos en las membresias con Checklist de Salud 360 (una sesion al mes de cada uno), y tambien de forma individual pagando la consulta, SIN necesidad de ser socio. Para el precio de la consulta suelta y para agendar, pide el nombre de la persona y deriva a un asesor. Marca intent = lead.",
+    body: "Los servicios de salud (nutricion, psicologia deportiva y kinesiologia) estan disponibles de DOS formas: incluidos en las membresias con Checklist de Salud 360 (una sesion al mes de cada uno), y de forma individual pagando la consulta, SIN ser socio. Precios de consulta suelta: Nutricion $650, Psicologia deportiva $500, Kinesiologia $500 (la 1a sesion de kinesiologia incluye historia clinica). Para agendar, pide el nombre de la persona y marca intent = lead para que un asesor confirme la cita.",
   },
   {
     key: "ayala_fuel",
