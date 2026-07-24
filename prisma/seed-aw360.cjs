@@ -118,6 +118,15 @@ const KNOWLEDGE = [
     body: "Area de Nutricion y Asesoria Especializada: te ayudamos a encontrar una alimentacion equilibrada, a comer para nutrir tu organismo y no solo para llenarlo. La direccion clinica esta a cargo de la nutriologa Hilda de Lizaola y el nutriologo deportivo Ricardo Ayala. (Para agendar una consulta, pide nombre y marca intent lead.)",
   },
   {
+    key: "wellness_servicios",
+    category: "servicio",
+    name: "Servicios de salud: nutricion, psicologia, kinesiologia",
+    keywords:
+      "kinesiologia,psicologia,psicologo,fisioterapia,consulta,checklist,salud 360,valoracion,rehabilitacion,postura,movilidad,sesion,aparte,sin ser socio",
+    always: false,
+    body: "Los servicios de salud (nutricion, psicologia deportiva y kinesiologia) estan disponibles de DOS formas: incluidos en las membresias con Checklist de Salud 360 (una sesion al mes de cada uno), y tambien de forma individual pagando la consulta, SIN necesidad de ser socio. Para el precio de la consulta suelta y para agendar, pide el nombre de la persona y deriva a un asesor. Marca intent = lead.",
+  },
+  {
     key: "ayala_fuel",
     category: "servicio",
     name: "Ayala, Fuel (restaurante)",
